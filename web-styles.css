@@ -1,0 +1,17 @@
+/* SahabatDarurat - Global Web Styles */
+
+/* Force light theme for web */
+html, body {
+  background-color: #FFFFFF !important;
+  color: #1F2937 !important;
+}
+
+/* Override any dark theme styles */
+* {
+  background-color: inherit;
+}
+
+/* Ensure all containers use light background */
+#root, .expo-root {
+  background-color: #FFFFFF !important;
+}
