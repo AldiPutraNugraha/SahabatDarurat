@@ -6,17 +6,37 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "sahabatdarurat",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Aplikasi ini memerlukan akses lokasi untuk memanggil ambulans darurat ke lokasi Anda.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Aplikasi ini memerlukan akses lokasi untuk layanan darurat dan tracking ambulans.",
+        "NSCameraUsageDescription": "Aplikasi ini memerlukan akses kamera untuk dokumentasi keadaan darurat.",
+        "NSMicrophoneUsageDescription": "Aplikasi ini memerlukan akses mikrofon untuk panggilan darurat."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "CALL_PHONE",
+        "READ_CONTACTS",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +52,24 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Aplikasi ini memerlukan akses lokasi untuk layanan darurat.",
+          "locationAlwaysPermission": "Aplikasi ini memerlukan akses lokasi untuk tracking ambulans secara real-time.",
+          "locationWhenInUsePermission": "Aplikasi ini memerlukan akses lokasi untuk memanggil ambulans ke lokasi Anda.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#DC2626",
+          "defaultChannel": "emergency-notifications"
         }
       ]
     ],
