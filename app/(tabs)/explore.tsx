@@ -1,110 +1,192 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { AmbulanceTracking } from '@/components/AmbulanceTracking';
+import { ServiceCard } from '@/components/ServiceCard';
+import { ServiceHistory } from '@/components/ServiceHistory';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Colors } from '@/constants/Colors';
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | null>(null);
+
+  // Force light theme colors
+  const backgroundColor = Colors.light.background;
+  const surfaceColor = Colors.light.surface;
+
+  const handleServicePress = (serviceType: string) => {
+    switch (serviceType) {
+      case 'history':
+        setActiveModal('history');
+        break;
+      case 'tracking':
+        setActiveModal('tracking');
+        break;
+      case 'emergency-contacts':
+        Alert.alert(
+          'Kontak Darurat',
+          'Fitur pengelolaan kontak darurat akan segera tersedia!',
+          [{ text: 'OK' }]
+        );
+        break;
+      case 'hospitals':
+        Alert.alert(
+          'Rumah Sakit Terdekat',
+          'Fitur pencarian rumah sakit akan segera tersedia!',
+          [{ text: 'OK' }]
+        );
+        break;
+      case 'consultation':
+        Alert.alert(
+          'Konsultasi Medis',
+          'Fitur konsultasi dengan tenaga medis akan segera tersedia!',
+          [{ text: 'OK' }]
+        );
+        break;
+      case 'profile':
+        Alert.alert(
+          'Profil & Rating',
+          'Fitur pengelolaan profil dan rating akan segera tersedia!',
+          [{ text: 'OK' }]
+        );
+        break;
+      default:
+        Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
+    }
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
+  if (activeModal === 'history') {
+    return <ServiceHistory onClose={closeModal} />;
+  }
+
+  if (activeModal === 'tracking') {
+    return <AmbulanceTracking onClose={closeModal} />;
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <ScrollView style={[styles.container, { backgroundColor }]} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <ThemedView style={[styles.header, { backgroundColor: surfaceColor }]}>
+          <ThemedText style={[styles.headerTitle, { color: Colors.light.primary }]}>Layanan Ambulans</ThemedText>
+          <ThemedText style={[styles.headerSubtitle, { color: Colors.light.textSecondary }]}>
+            Akses lengkap semua layanan ambulans darurat
           </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+        </ThemedView>
+
+        {/* Emergency Services */}
+                <ThemedView style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: Colors.light.primary }]}>Bantuan Darurat</ThemedText>
+          
+          <ServiceCard
+            title="Tracking Ambulans"
+            description="Pantau lokasi ambulans secara real-time"
+            icon="locate"
+            onPress={() => handleServicePress('tracking')}
+            isEmergency={true}
+          />
+          
+          <ServiceCard
+            title="Riwayat Layanan"
+            description="Lihat semua riwayat panggilan ambulans Anda"
+            icon="time"
+            onPress={() => handleServicePress('history')}
+          />
+          
+          <ServiceCard
+            title="Kontak Darurat"
+            description="Kelola kontak keluarga untuk situasi darurat"
+            icon="people"
+            onPress={() => handleServicePress('emergency-contacts')}
+          />
+        </ThemedView>
+
+        {/* Medical Services */}
+        <ThemedView style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: Colors.light.primary }]}>Layanan Medis</ThemedText>
+          
+          <ServiceCard
+            title="Rumah Sakit Terdekat"
+            description="Temukan rumah sakit terdekat dari lokasi Anda"
+            icon="business"
+            onPress={() => handleServicePress('hospitals')}
+          />
+          
+          <ServiceCard
+            title="Konsultasi Medis"
+            description="Chat dengan tenaga medis profesional"
+            icon="chatbubbles"
+            onPress={() => handleServicePress('consultation')}
+          />
+          
+          <ServiceCard
+            title="Info Medis Pribadi"
+            description="Kelola riwayat medis dan informasi kesehatan"
+            icon="document-text"
+            onPress={() => handleServicePress('medical-info')}
+          />
+        </ThemedView>
+
+        {/* Profile & Settings */}
+        <ThemedView style={styles.section}>
+          <ThemedText style={styles.sectionTitle}>Profil & Pengaturan</ThemedText>
+          
+          <ServiceCard
+            title="Profil Pengguna"
+            description="Kelola profil dan rating layanan ambulans"
+            icon="person"
+            onPress={() => handleServicePress('profile')}
+          />
+          
+          <ServiceCard
+            title="Pengaturan Aplikasi"
+            description="Notifikasi, privasi, dan preferensi"
+            icon="settings"
+            onPress={() => handleServicePress('settings')}
+          />
+        </ThemedView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  safeArea: {
+    flex: 1,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  container: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  section: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
   },
 });
