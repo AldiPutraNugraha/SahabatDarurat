@@ -6,25 +6,35 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'expo-router';
 
-export default function LoginScreen() {
-  const { signIn, isLoading } = useAuth();
+export default function RegisterScreen() {
+  const { register, isLoading } = useAuth();
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async () => {
     if (isSubmitting) return;
+    if (!email || !password) {
+      Alert.alert('Gagal Daftar', 'Email dan password wajib diisi');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Gagal Daftar', 'Password dan konfirmasi tidak sama');
+      return;
+    }
     try {
       setIsSubmitting(true);
-      await signIn(email.trim(), password);
+      await register(email.trim(), password, displayName.trim() || undefined);
     } catch (err: any) {
-      Alert.alert('Gagal Masuk', err?.message ?? 'Terjadi kesalahan');
+      Alert.alert('Gagal Daftar', err?.message ?? 'Terjadi kesalahan');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const disabled = isSubmitting || isLoading || !email || !password;
+  const disabled = isSubmitting || isLoading || !email || !password || password !== confirmPassword;
 
   return (
     <KeyboardAvoidingView
@@ -33,12 +43,21 @@ export default function LoginScreen() {
     >
       <ThemedView style={styles.container}>
         <View style={styles.header}>
-          <ThemedText type="title" style={{ color: Colors.light.primary }}>SahabatDarurat</ThemedText>
-          <ThemedText type="subtitle" style={{ color: Colors.light.textSecondary }}>Masuk dulu ya, biar aman</ThemedText>
+          <ThemedText type="title" style={{ color: Colors.light.primary }}>Buat Akun</ThemedText>
+          <ThemedText type="subtitle" style={{ color: Colors.light.textSecondary }}>Registrasi akun baru</ThemedText>
         </View>
 
         <View style={styles.form}>
-          <ThemedText style={styles.label}>Email</ThemedText>
+          <ThemedText style={styles.label}>Nama</ThemedText>
+          <TextInput
+            value={displayName}
+            onChangeText={setDisplayName}
+            placeholder="Nama lengkap (opsional)"
+            style={styles.input}
+            placeholderTextColor={Colors.light.textMuted}
+          />
+
+          <ThemedText style={[styles.label, { marginTop: 16 }]}>Email</ThemedText>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -60,15 +79,25 @@ export default function LoginScreen() {
             placeholderTextColor={Colors.light.textMuted}
           />
 
+          <ThemedText style={[styles.label, { marginTop: 16 }]}>Konfirmasi Password</ThemedText>
+          <TextInput
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="••••••••"
+            secureTextEntry
+            style={styles.input}
+            placeholderTextColor={Colors.light.textMuted}
+          />
+
           <Pressable onPress={onSubmit} disabled={disabled} style={({ pressed }) => [
             styles.button,
             disabled ? styles.buttonDisabled : undefined,
             pressed ? { opacity: 0.9 } : undefined,
           ]}>
-            <ThemedText style={styles.buttonText}>{disabled ? 'Sebentar...' : 'Masuk'}</ThemedText>
+            <ThemedText style={styles.buttonText}>{disabled ? 'Sebentar...' : 'Daftar'}</ThemedText>
           </Pressable>
 
-          <ThemedText style={styles.hint}>Belum punya akun? <Link href="/(auth)/register">Daftar dulu</Link></ThemedText>
+          <ThemedText style={styles.hint}>Sudah punya akun? <Link href="/(auth)">Masuk</Link></ThemedText>
         </View>
       </ThemedView>
     </KeyboardAvoidingView>
