@@ -10,9 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
 import { ServiceCard } from '@/components/ServiceCard';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
