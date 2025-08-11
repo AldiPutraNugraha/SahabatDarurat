@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/Colors';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { ActivityIndicator, View } from 'react-native';
 
 // Custom theme untuk SahabatDarurat dengan tema putih konsisten
 const SahabatDaruratTheme = {
@@ -32,11 +34,33 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={SahabatDaruratTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="dark" />
+      <AuthProvider>
+        <AuthAwareNavigator />
+        <StatusBar style="dark" />
+      </AuthProvider>
     </ThemeProvider>
+  );
+}
+
+function AuthAwareNavigator() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.light.background }}>
+        <ActivityIndicator size="small" color={Colors.light.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <Stack>
+      {isAuthenticated ? (
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      ) : (
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      )}
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
