@@ -62,6 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (displayName) {
         await updateProfile(cred.user, { displayName });
       }
+      // Kembali ke state belum login setelah registrasi
+      await fbSignOut(auth);
     } finally {
       setIsLoading(false);
     }

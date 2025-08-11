@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 export default function RegisterScreen() {
   const { register, isLoading } = useAuth();
@@ -27,6 +27,8 @@ export default function RegisterScreen() {
     try {
       setIsSubmitting(true);
       await register(email.trim(), password, displayName.trim() || undefined);
+      // Arahkan kembali ke halaman login setelah register
+      router.replace('/(auth)');
     } catch (err: any) {
       Alert.alert('Gagal Daftar', err?.message ?? 'Terjadi kesalahan');
     } finally {
