@@ -1,7 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import * as Location from 'expo-location';
+import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
@@ -65,6 +69,8 @@ export default function HomeScreen() {
     // TODO: Navigate to specific service screen
   };
 
+  const { signOut } = useAuth();
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
       <ScrollView style={[styles.container, { backgroundColor }]} showsVerticalScrollIndicator={false}>
@@ -77,11 +83,9 @@ export default function HomeScreen() {
                 {location ? 'Lokasi terdeteksi' : 'Mencari lokasi...'}
               </ThemedText>
             </View>
-            <Ionicons 
-              name="notifications-outline" 
-              size={24} 
-              color={textSecondaryColor} 
-            />
+            <Pressable onPress={signOut} accessibilityRole="button">
+              <Ionicons name="log-out-outline" size={24} color={textSecondaryColor} />
+            </Pressable>
           </View>
         </ThemedView>
 
