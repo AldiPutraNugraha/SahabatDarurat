@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import React, { useEffect, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, ActivityIndicator, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -14,9 +15,11 @@ interface AmbulanceTrackingProps {
 }
 
 export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
-  const [, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [eta, setEta] = useState(12);
   const [status, setStatus] = useState<'on-way' | 'arrived' | 'completed'>('on-way');
+  const [ambulanceCoord, setAmbulanceCoord] = useState<{ latitude: number; longitude: number } | null>(null);
+  const mapRef = useRef<MapView | null>(null);
 
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background }, 'background');
   const surfaceColor = useThemeColor({ light: Colors.light.surface, dark: Colors.dark.surface }, 'surface');
@@ -25,11 +28,31 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
 
   useEffect(() => {
     getCurrentLocation();
-    simulateAmbulanceMovement();
   }, []);
+
+  // Initialize ambulance start position once user position is known
+  useEffect(() => {
+    if (!userLocation) return;
+    const { latitude, longitude } = userLocation.coords;
+    // Start 1.5km to the southwest for demo
+    const start = moveCoordinateTowards(
+      { latitude: latitude - 0.012, longitude: longitude - 0.012 },
+      { latitude, longitude },
+      0
+    );
+    setAmbulanceCoord(start);
+    focusRegion(latitude, longitude, start.latitude, start.longitude);
+  // Intentionally ignore pure helper dependency to avoid re-initializing start position
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation]);
 
   const getCurrentLocation = async () => {
     try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Izin Lokasi', 'Izin lokasi diperlukan untuk tracking real-time.');
+        return;
+      }
       const location = await Location.getCurrentPositionAsync({});
       setUserLocation(location);
     } catch (error) {
@@ -37,21 +60,67 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
     }
   };
 
-  const simulateAmbulanceMovement = () => {
-    // Simulate ambulance getting closer
+  // Move ambulance towards user every second and update ETA
+  useEffect(() => {
+    if (!userLocation || !ambulanceCoord || status === 'arrived') return;
+    const target = {
+      latitude: userLocation.coords.latitude,
+      longitude: userLocation.coords.longitude,
+    };
     const interval = setInterval(() => {
-      setEta(prev => {
-        if (prev <= 1) {
+      setAmbulanceCoord((prev) => {
+        if (!prev) return prev;
+        const next = stepTowards(prev, target, 140); // 140 m/s (~504 km/h) just for visible demo speed
+        const dist = distanceMeters(next, target);
+        if (dist < 30) {
           setStatus('arrived');
-          clearInterval(interval);
-          return 0;
+          setEta(0);
+          return target;
         }
-        return prev - 1;
+        // Update ETA (minutes)
+        const speed = 140; // meters per second (demo)
+        setEta(Math.max(1, Math.round((dist / speed) / 60)));
+        return next;
       });
-    }, 5000); // Update every 5 seconds for demo
+    }, 1000);
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation, ambulanceCoord, status]);
+
+  const focusRegion = (uLat: number, uLng: number, aLat: number, aLng: number) => {
+    const midLat = (uLat + aLat) / 2;
+    const midLng = (uLng + aLng) / 2;
+    const latDelta = Math.max(Math.abs(uLat - aLat), 0.01) * 1.6;
+    const lngDelta = Math.max(Math.abs(uLng - aLng), 0.01) * 1.6;
+    mapRef.current?.animateToRegion({ latitude: midLat, longitude: midLng, latitudeDelta: latDelta, longitudeDelta: lngDelta }, 500);
   };
+
+  // Helpers: simple geodesic approximations
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  // const toDeg = (rad: number) => (rad * 180) / Math.PI;
+  const EARTH_R = 6371000; // meters
+
+  const distanceMeters = (a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) => {
+    const dLat = toRad(b.latitude - a.latitude);
+    const dLng = toRad(b.longitude - a.longitude);
+    const lat1 = toRad(a.latitude);
+    const lat2 = toRad(b.latitude);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+    return 2 * EARTH_R * Math.asin(Math.sqrt(h));
+  };
+
+  const stepTowards = (from: { latitude: number; longitude: number }, to: { latitude: number; longitude: number }, stepMeters: number) => {
+    const dist = distanceMeters(from, to);
+    if (dist === 0) return to;
+    const frac = Math.min(1, stepMeters / dist);
+    return {
+      latitude: from.latitude + (to.latitude - from.latitude) * frac,
+      longitude: from.longitude + (to.longitude - from.longitude) * frac,
+    };
+  };
+
+  const moveCoordinateTowards = (from: { latitude: number; longitude: number }, to: { latitude: number; longitude: number }, meters: number) => stepTowards(from, to, meters);
 
   const handleCallDriver = () => {
     Alert.alert(
@@ -102,14 +171,44 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
         <View style={styles.placeholder} />
       </ThemedView>
 
-      {/* Map Placeholder */}
+      {/* Map Realtime */}
       <ThemedView style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <Ionicons name="map" size={48} color={primaryColor} />
-          <ThemedText style={styles.mapText}>
-            Peta akan menampilkan lokasi ambulans secara real-time
-          </ThemedText>
-        </View>
+        {userLocation && ambulanceCoord ? (
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={StyleSheet.absoluteFill}
+            initialRegion={{
+              latitude: (userLocation.coords.latitude + ambulanceCoord.latitude) / 2,
+              longitude: (userLocation.coords.longitude + ambulanceCoord.longitude) / 2,
+              latitudeDelta: 0.03,
+              longitudeDelta: 0.03,
+            }}
+          >
+            <Marker
+              coordinate={{ latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }}
+              title="Lokasi Anda"
+              pinColor={successColor}
+            />
+            <Marker
+              coordinate={ambulanceCoord}
+              title="Ambulans"
+              description="Menuju lokasi Anda"
+            >
+              <Ionicons name="medical" size={28} color={primaryColor} />
+            </Marker>
+            <Polyline
+              coordinates={[ambulanceCoord, { latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }]}
+              strokeColor={primaryColor}
+              strokeWidth={3}
+            />
+          </MapView>
+        ) : (
+          <View style={styles.mapPlaceholder}>
+            <ActivityIndicator color={primaryColor} />
+            <ThemedText style={styles.mapText}>Menyiapkan peta...</ThemedText>
+          </View>
+        )}
       </ThemedView>
 
       {/* Status Card */}
