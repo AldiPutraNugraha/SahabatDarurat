@@ -20,7 +20,7 @@ interface UserProfileData {
   averageRating: number;
 }
 
-export function UserProfile() {
+export function UserProfile({ onClose }: { onClose: () => void }) {
   const { user, signOut } = useAuth();
   const [profileData, setProfileData] = useState<UserProfileData>({
     name: user?.displayName || 'User',
@@ -156,7 +156,7 @@ export function UserProfile() {
         <View style={styles.headerTop}>
           <TouchableOpacity 
             style={styles.backButton} 
-            onPress={() => router.replace('/(tabs)/explore')}
+            onPress={onClose}
           >
             <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
           </TouchableOpacity>

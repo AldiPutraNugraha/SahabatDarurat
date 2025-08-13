@@ -33,7 +33,7 @@ interface AppSettings {
   };
 }
 
-export function AppSettings() {
+export function AppSettings({ onClose }: { onClose: () => void }) {
   const [settings, setSettings] = useState<AppSettings>({
     notifications: {
       emergency: true,
@@ -183,7 +183,7 @@ export function AppSettings() {
         <View style={styles.headerTop}>
           <TouchableOpacity 
             style={styles.backButton} 
-            onPress={() => router.replace('/(tabs)/explore')}
+            onPress={onClose}
           >
             <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
           </TouchableOpacity>
