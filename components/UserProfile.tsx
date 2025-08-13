@@ -156,7 +156,7 @@ export function UserProfile() {
         <View style={styles.headerTop}>
           <TouchableOpacity 
             style={styles.backButton} 
-            onPress={() => router.back()}
+            onPress={() => router.replace('/(tabs)/explore')}
           >
             <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
           </TouchableOpacity>
