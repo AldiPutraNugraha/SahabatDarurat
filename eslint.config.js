@@ -7,4 +7,11 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  {
+    rules: {
+      // Allow dynamic require for platform-conditional imports (e.g., react-native-maps only on native)
+      '@typescript-eslint/no-var-requires': 'off',
+      'import/no-commonjs': 'off',
+    },
+  },
 ]);

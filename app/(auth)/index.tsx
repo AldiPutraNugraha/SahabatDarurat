@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 export default function LoginScreen() {
   const { signIn, isLoading } = useAuth();
@@ -17,6 +17,8 @@ export default function LoginScreen() {
     try {
       setIsSubmitting(true);
       await signIn(email.trim(), password);
+      // Pastikan berpindah ke tabs setelah login
+      router.replace('/(tabs)');
     } catch (err: any) {
       Alert.alert('Gagal Masuk', err?.message ?? 'Terjadi kesalahan');
     } finally {

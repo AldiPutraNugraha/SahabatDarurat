@@ -12,9 +12,11 @@ import { ServiceHistory } from '@/components/ServiceHistory';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import { UserProfile } from '@/components/UserProfile';
+import { AppSettings } from '@/components/AppSettings';
 
 export default function ExploreScreen() {
-  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | 'hospitals' | 'consultation' | 'contacts' | 'medical-info' | 'patient-transport' | null>(null);
+  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | 'hospitals' | 'consultation' | 'contacts' | 'medical-info' | 'patient-transport' | 'profile' | 'settings' | null>(null);
 
   // Force light theme colors
   const backgroundColor = Colors.light.background;
@@ -42,6 +44,12 @@ export default function ExploreScreen() {
         break;
       case 'patient-transport':
         setActiveModal('patient-transport');
+        break;
+      case 'profile':
+        setActiveModal('profile');
+        break;
+      case 'settings':
+        setActiveModal('settings');
         break;
       default:
         Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
@@ -78,6 +86,14 @@ export default function ExploreScreen() {
 
   if (activeModal === 'patient-transport') {
     return <PatientTransport onClose={closeModal} />;
+  }
+
+  if (activeModal === 'profile') {
+    return <UserProfile />;
+  }
+
+  if (activeModal === 'settings') {
+    return <AppSettings />;
   }
 
   return (
