@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View, Modal } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -36,6 +36,8 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'completed' | 'cancelled' | 'pending'>('all');
   const [history, setHistory] = useState<ServiceHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingTargetId, setRatingTargetId] = useState<string | null>(null);
 
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background }, 'background');
   const surfaceColor = useThemeColor({ light: Colors.light.surface, dark: Colors.dark.surface }, 'surface');
@@ -219,6 +221,19 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
     }
   };
 
+  const openRatingModal = (itemId: string) => {
+    setRatingTargetId(itemId);
+    setShowRatingModal(true);
+  };
+
+  const handleRating = async (rating: number) => {
+    if (ratingTargetId) {
+      await addRating(ratingTargetId, rating);
+      setShowRatingModal(false);
+      setRatingTargetId(null);
+    }
+  };
+
   const renderHistoryItem = ({ item }: { item: ServiceHistoryItem }) => (
     <TouchableOpacity style={[styles.historyItem, { backgroundColor: surfaceColor }]}>
       <View style={styles.itemHeader}>
@@ -278,20 +293,7 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
       ) : item.status === 'completed' && (
         <TouchableOpacity 
           style={styles.addRatingBtn}
-          onPress={() => {
-            Alert.alert(
-              'Tambah Rating',
-              'Berikan rating untuk layanan ini:',
-              [
-                { text: '1', onPress: () => addRating(item.id, 1) },
-                { text: '2', onPress: () => addRating(item.id, 2) },
-                { text: '3', onPress: () => addRating(item.id, 3) },
-                { text: '4', onPress: () => addRating(item.id, 4) },
-                { text: '5', onPress: () => addRating(item.id, 5) },
-                { text: 'Batal', style: 'cancel' }
-              ]
-            );
-          }}
+          onPress={() => openRatingModal(item.id)}
         >
           <ThemedText style={styles.addRatingText}>Tambah Rating</ThemedText>
         </TouchableOpacity>
@@ -385,6 +387,34 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
           </View>
         }
       />
+      {/* Custom Modal for Rating */}
+      <Modal
+        visible={showRatingModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRatingModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <ThemedText style={styles.modalTitle}>Tambah Rating</ThemedText>
+            <ThemedText style={styles.modalSubtitle}>Berikan rating untuk layanan ini:</ThemedText>
+            <View style={styles.ratingButtonsRow}>
+              {[1,2,3,4,5].map((num) => (
+                <TouchableOpacity
+                  key={num}
+                  style={styles.ratingButton}
+                  onPress={() => handleRating(num)}
+                >
+                  <ThemedText style={styles.ratingButtonText}>{num}</ThemedText>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity onPress={() => setShowRatingModal(false)} style={styles.cancelBtn}>
+              <ThemedText style={styles.cancelBtnText}>Batal</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -564,5 +594,55 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.6,
     paddingHorizontal: 32,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: 320,
+    alignItems: 'center',
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 15,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  ratingButtonsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
+  },
+  ratingButton: {
+    backgroundColor: Colors.light.primary,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginHorizontal: 4,
+  },
+  ratingButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  cancelBtn: {
+    marginTop: 8,
+    padding: 8,
+  },
+  cancelBtnText: {
+    color: Colors.light.primary,
+    fontWeight: '600',
+    fontSize: 15,
   },
 });
