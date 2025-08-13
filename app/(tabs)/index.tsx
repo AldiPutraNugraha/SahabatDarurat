@@ -10,13 +10,10 @@ import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 're
 
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
-import { ServiceCard } from '@/components/ServiceCard';
-import { PatientTransport } from '@/components/PatientTransport';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [isEmergencyLoading, setIsEmergencyLoading] = useState(false);
-  const [showPatientTransport, setShowPatientTransport] = useState(false);
 
   // Force light theme colors
   const backgroundColor = Colors.light.background;
@@ -58,27 +55,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handleServicePress = (serviceType: string) => {
-    switch (serviceType) {
-      case 'Transport':
-        setShowPatientTransport(true);
-        break;
-      case 'Konsultasi':
-        Alert.alert('Info', 'Fitur Konsultasi Medis akan segera tersedia!');
-        break;
-      case 'Rumah Sakit':
-        Alert.alert('Info', 'Fitur Rumah Sakit Terdekat akan segera tersedia!');
-        break;
-      default:
-        Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
-    }
-  };
-
   const { signOut } = useAuth();
-
-  if (showPatientTransport) {
-    return <PatientTransport onClose={() => setShowPatientTransport(false)} />;
-  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
@@ -110,33 +87,6 @@ export default function HomeScreen() {
           <ThemedText style={styles.emergencyNote}>
             Tekan untuk panggilan darurat. Ambulans akan segera dikirim ke lokasi Anda.
           </ThemedText>
-        </ThemedView>
-
-        {/* Services Section */}
-        <ThemedView style={styles.servicesSection}>
-          <ThemedText style={[styles.sectionTitle, { color: primaryColor }]}>Layanan Lainnya</ThemedText>
-          
-          
-          <ServiceCard
-            title="Antar Jemput Pasien"
-            description="Layanan transportasi ke rumah sakit atau klinik"
-            icon="car-outline"
-            onPress={() => handleServicePress('Transport')}
-          />
-          
-          <ServiceCard
-            title="Konsultasi Medis"
-            description="Chat dengan tenaga medis profesional"
-            icon="chatbubbles-outline"
-            onPress={() => handleServicePress('Konsultasi')}
-          />
-          
-          <ServiceCard
-            title="Rumah Sakit Terdekat"
-            description="Temukan rumah sakit dan klinik di sekitar Anda"
-            icon="business-outline"
-            onPress={() => handleServicePress('Rumah Sakit')}
-          />
         </ThemedView>
 
         {/* Quick Actions */}
