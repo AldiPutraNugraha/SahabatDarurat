@@ -34,7 +34,6 @@ export default function LoginScreen() {
       <ThemedView style={styles.container}>
         <View style={styles.header}>
           <ThemedText type="title" style={{ color: Colors.light.primary }}>SahabatDarurat</ThemedText>
-          <ThemedText type="subtitle" style={{ color: Colors.light.textSecondary }}>Masuk dulu ya, biar aman</ThemedText>
         </View>
 
         <View style={styles.form}>
