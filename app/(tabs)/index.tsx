@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 
-import { AmbulanceActions } from '@/components/AmbulanceActions';
+
 import { EmergencyButton } from '@/components/EmergencyButton';
 import { saveEmergencyCall } from '@/utils/serviceHistory';
 
@@ -104,8 +104,7 @@ export default function HomeScreen() {
           </ThemedText>
         </ThemedView>
 
-        {/* Quick Actions */}
-        <AmbulanceActions />
+
       </ScrollView>
     </SafeAreaView>
   );
