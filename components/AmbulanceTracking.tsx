@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { updateEmergencyCallStatus } from '@/utils/serviceHistory';
 
 interface AmbulanceTrackingProps {
   requestId?: string;
@@ -16,9 +17,10 @@ interface AmbulanceTrackingProps {
 
 export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [eta, setEta] = useState(12);
+  const [eta, setEta] = useState(30); // ETA dalam detik, tapi ditampilkan sebagai menit
   const [status, setStatus] = useState<'on-way' | 'arrived' | 'completed'>('on-way');
   const [ambulanceCoord, setAmbulanceCoord] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentEmergencyCallId, setCurrentEmergencyCallId] = useState<string>('');
   const mapRef = useRef<any>(null);
 
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background }, 'background');
@@ -28,6 +30,8 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
 
   useEffect(() => {
     getCurrentLocation();
+    // Ambil ID panggilan darurat terbaru untuk update status
+    getLatestEmergencyCallId();
   }, []);
 
   // Initialize ambulance start position once user position is known
@@ -60,6 +64,22 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
     }
   };
 
+  const getLatestEmergencyCallId = async () => {
+    try {
+      // Ambil ID panggilan darurat terbaru dari storage
+      const { getEmergencyCallHistory } = await import('@/utils/serviceHistory');
+      const history = await getEmergencyCallHistory();
+      if (history.length > 0) {
+        const latestCall = history[0]; // Ambil yang terbaru
+        setCurrentEmergencyCallId(latestCall.id);
+        // Update status menjadi 'in-progress' saat tracking dimulai
+        await updateEmergencyCallStatus(latestCall.id, 'in-progress');
+      }
+    } catch (error) {
+      console.error('Error getting latest emergency call ID:', error);
+    }
+  };
+
   // Move ambulance towards user every second and update ETA
   useEffect(() => {
     if (!userLocation || !ambulanceCoord || status === 'arrived') return;
@@ -75,18 +95,23 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
         if (dist < 30) {
           setStatus('arrived');
           setEta(0);
+          // Update status di riwayat layanan menjadi 'completed'
+          if (currentEmergencyCallId) {
+            updateEmergencyCallStatus(currentEmergencyCallId, 'completed');
+          }
           return target;
         }
-        // Update ETA (minutes)
+        // Update ETA (dalam detik, tapi ditampilkan sebagai menit)
         const speed = 140; // meters per second (demo)
-        setEta(Math.max(1, Math.round((dist / speed) / 60)));
+        const etaSeconds = Math.max(1, Math.round((dist / speed)));
+        setEta(etaSeconds);
         return next;
       });
     }, 1000);
 
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation, ambulanceCoord, status]);
+  }, [userLocation, ambulanceCoord, status, currentEmergencyCallId]);
 
   const focusRegion = (uLat: number, uLng: number, aLat: number, aLng: number) => {
     const midLat = (uLat + aLat) / 2;
@@ -122,8 +147,6 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
 
   const moveCoordinateTowards = (from: { latitude: number; longitude: number }, to: { latitude: number; longitude: number }, meters: number) => stepTowards(from, to, meters);
 
-  // Removed call/chat handlers as UI tidak lagi menampilkan tombol tersebut
-
   const getStatusColor = () => {
     switch (status) {
       case 'arrived':
@@ -144,6 +167,14 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
       default:
         return 'Status tidak diketahui';
     }
+  };
+
+  // Format ETA: tampilkan sebagai menit meskipun sebenarnya detik
+  const formatETA = (etaSeconds: number): string => {
+    if (etaSeconds === 0) return '0 menit';
+    // Konversi detik ke menit untuk display (30 detik = 30 menit)
+    const etaMinutes = etaSeconds;
+    return `${etaMinutes} menit`;
   };
 
   return (
@@ -185,7 +216,7 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
           <View style={styles.etaContainer}>
             <Ionicons name="time" size={20} color={primaryColor} />
             <ThemedText style={styles.etaText}>
-              ETA: {eta} menit
+              ETA: {formatETA(eta)}
             </ThemedText>
           </View>
         )}

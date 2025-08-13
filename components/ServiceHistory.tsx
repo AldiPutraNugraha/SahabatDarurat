@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useEffect } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -45,6 +45,13 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
 
   useEffect(() => {
     loadServiceHistory();
+    
+    // Auto-refresh setiap 3 detik untuk mendeteksi perubahan status
+    const interval = setInterval(() => {
+      loadServiceHistory();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadServiceHistory = async () => {
