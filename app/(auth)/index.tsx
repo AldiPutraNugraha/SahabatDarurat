@@ -10,6 +10,7 @@ export default function LoginScreen() {
   const { signIn, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async () => {
@@ -60,6 +61,8 @@ export default function LoginScreen() {
             style={styles.input}
             placeholderTextColor={Colors.light.textMuted}
           />
+
+
 
           <Pressable onPress={onSubmit} disabled={disabled} style={({ pressed }) => [
             styles.button,
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
   },
+
   hint: {
     marginTop: 12,
     textAlign: 'center',

@@ -11,12 +11,11 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { ServiceHistory } from '@/components/ServiceHistory';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
 import { UserProfile } from '@/components/UserProfile';
-import { AppSettings } from '@/components/AppSettings';
+import { Colors } from '@/constants/Colors';
 
 export default function ExploreScreen() {
-  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | 'hospitals' | 'consultation' | 'contacts' | 'medical-info' | 'patient-transport' | 'profile' | 'settings' | null>(null);
+  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | 'hospitals' | 'consultation' | 'contacts' | 'medical-info' | 'patient-transport' | 'profile' | null>(null);
 
   // Force light theme colors
   const backgroundColor = Colors.light.background;
@@ -48,9 +47,7 @@ export default function ExploreScreen() {
       case 'profile':
         setActiveModal('profile');
         break;
-      case 'settings':
-        setActiveModal('settings');
-        break;
+
       default:
         Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
     }
@@ -89,12 +86,10 @@ export default function ExploreScreen() {
   }
 
   if (activeModal === 'profile') {
-    return <UserProfile />;
+    return <UserProfile onClose={closeModal} />;
   }
 
-  if (activeModal === 'settings') {
-    return <AppSettings />;
-  }
+
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
@@ -167,9 +162,9 @@ export default function ExploreScreen() {
           />
         </ThemedView>
 
-        {/* Profile & Settings */}
+        {/* Profile */}
         <ThemedView style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Profil & Pengaturan</ThemedText>
+          <ThemedText style={styles.sectionTitle}>Profil</ThemedText>
           
           <ServiceCard
             title="Profil Pengguna"
@@ -178,12 +173,7 @@ export default function ExploreScreen() {
             onPress={() => handleServicePress('profile')}
           />
           
-          <ServiceCard
-            title="Pengaturan Aplikasi"
-            description="Notifikasi, privasi, dan preferensi"
-            icon="settings"
-            onPress={() => handleServicePress('settings')}
-          />
+
         </ThemedView>
       </ScrollView>
     </SafeAreaView>

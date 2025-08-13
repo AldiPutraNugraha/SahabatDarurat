@@ -54,10 +54,15 @@ function AuthAwareNavigator() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="tracking" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="tracking" />
+        </>
+      ) : (
+        <Stack.Screen name="(auth)" />
+      )}
       <Stack.Screen name="+not-found" />
     </Stack>
   );

@@ -25,7 +25,9 @@ export function AmbulanceMap({ user, ambulance, primaryColor, successColor }: Am
 
   return (
     <MapView
-      ref={(r) => (mapRef.current = r)}
+      ref={(r) => {
+        mapRef.current = r;
+      }}
       provider={PROVIDER_GOOGLE}
       style={StyleSheet.absoluteFill}
       initialRegion={{
@@ -43,7 +45,4 @@ export function AmbulanceMap({ user, ambulance, primaryColor, successColor }: Am
     </MapView>
   );
 }
-
-const styles = StyleSheet.create({});
-
-
+ 

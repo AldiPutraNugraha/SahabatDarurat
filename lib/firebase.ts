@@ -18,6 +18,7 @@ if (!getApps().length) {
   if (Platform.OS === 'web') {
     initializeAuth(app, { persistence: indexedDBLocalPersistence });
   } else {
+    // Gunakan inMemoryPersistence untuk mobile agar tidak menyimpan session secara permanen
     initializeAuth(app, { persistence: inMemoryPersistence });
   }
 } else {

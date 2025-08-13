@@ -1,7 +1,7 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut as fbSignOut, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 type AuthContextValue = {
   isAuthenticated: boolean;
@@ -23,7 +23,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      // Hanya set authenticated jika user benar-benar ada dan valid
+      if (user && user.emailVerified !== false) {
         setIsAuthenticated(true);
         setUserEmail(user.email ?? null);
         await AsyncStorage.setItem(AUTH_EMAIL_KEY, user.email ?? '');
@@ -49,7 +50,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = useCallback(async () => {
     setIsLoading(true);
     try {
+      // Logout dari Firebase
       await fbSignOut(auth);
+      // Hapus data dari AsyncStorage
+      await AsyncStorage.removeItem(AUTH_EMAIL_KEY);
+      // Reset state lokal
+      setIsAuthenticated(false);
+      setUserEmail(null);
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Tetap reset state meskipun ada error
+      setIsAuthenticated(false);
+      setUserEmail(null);
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     }
   }, []);
+
+
 
   const value = useMemo<AuthContextValue>(() => ({
     isAuthenticated,
