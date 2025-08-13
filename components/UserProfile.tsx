@@ -6,6 +6,7 @@ import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 interface UserProfileData {
   name: string;
@@ -150,8 +151,18 @@ export function UserProfile() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
+      {/* Header with Back Button */}
       <ThemedView style={styles.header}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
+          </TouchableOpacity>
+          <ThemedText style={styles.headerTitle}>Profil Pengguna</ThemedText>
+          <View style={styles.headerSpacer} />
+        </View>
         <View style={styles.avatarContainer}>
           <Ionicons name="person-circle" size={80} color={Colors.light.primary} />
         </View>
@@ -230,6 +241,26 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: Colors.light.surface,
     marginBottom: 16,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.light.primary,
+  },
+  headerSpacer: {
+    width: 40,
   },
   avatarContainer: {
     marginBottom: 16,

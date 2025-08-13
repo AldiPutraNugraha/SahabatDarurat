@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 interface AppSettings {
   notifications: {
@@ -177,6 +178,20 @@ export function AppSettings() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Header with Back Button */}
+      <ThemedView style={styles.header}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color={Colors.light.primary} />
+          </TouchableOpacity>
+          <ThemedText style={styles.headerTitle}>Pengaturan Aplikasi</ThemedText>
+          <View style={styles.headerSpacer} />
+        </View>
+      </ThemedView>
+
       {/* Notifications */}
       {renderSection('Notifikasi', (
         <>
@@ -360,6 +375,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
+  },
+  header: {
+    padding: 20,
+    backgroundColor: Colors.light.surface,
+    marginBottom: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.light.primary,
+  },
+  headerSpacer: {
+    width: 40,
   },
   section: {
     margin: 16,
