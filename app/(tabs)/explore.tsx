@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 
 import { AmbulanceTracking } from '@/components/AmbulanceTracking';
+import { EmergencyContacts } from '@/components/EmergencyContacts';
+import { HospitalsList } from '@/components/HospitalsList';
+import { MedicalConsultation } from '@/components/MedicalConsultation';
+import { PatientTransport } from '@/components/PatientTransport';
+import { PersonalMedicalInfo } from '@/components/PersonalMedicalInfo';
 import { ServiceCard } from '@/components/ServiceCard';
 import { ServiceHistory } from '@/components/ServiceHistory';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,7 +14,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 
 export default function ExploreScreen() {
-  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | null>(null);
+  const [activeModal, setActiveModal] = useState<'history' | 'tracking' | 'hospitals' | 'consultation' | 'contacts' | 'medical-info' | 'patient-transport' | null>(null);
 
   // Force light theme colors
   const backgroundColor = Colors.light.background;
@@ -24,32 +29,19 @@ export default function ExploreScreen() {
         setActiveModal('tracking');
         break;
       case 'emergency-contacts':
-        Alert.alert(
-          'Kontak Darurat',
-          'Fitur pengelolaan kontak darurat akan segera tersedia!',
-          [{ text: 'OK' }]
-        );
+        setActiveModal('contacts');
         break;
       case 'hospitals':
-        Alert.alert(
-          'Rumah Sakit Terdekat',
-          'Fitur pencarian rumah sakit akan segera tersedia!',
-          [{ text: 'OK' }]
-        );
+        setActiveModal('hospitals');
         break;
       case 'consultation':
-        Alert.alert(
-          'Konsultasi Medis',
-          'Fitur konsultasi dengan tenaga medis akan segera tersedia!',
-          [{ text: 'OK' }]
-        );
+        setActiveModal('consultation');
         break;
-      case 'profile':
-        Alert.alert(
-          'Profil & Rating',
-          'Fitur pengelolaan profil dan rating akan segera tersedia!',
-          [{ text: 'OK' }]
-        );
+      case 'medical-info':
+        setActiveModal('medical-info');
+        break;
+      case 'patient-transport':
+        setActiveModal('patient-transport');
         break;
       default:
         Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
@@ -66,6 +58,26 @@ export default function ExploreScreen() {
 
   if (activeModal === 'tracking') {
     return <AmbulanceTracking onClose={closeModal} />;
+  }
+
+  if (activeModal === 'hospitals') {
+    return <HospitalsList onClose={closeModal} />;
+  }
+
+  if (activeModal === 'consultation') {
+    return <MedicalConsultation onClose={closeModal} />;
+  }
+
+  if (activeModal === 'contacts') {
+    return <EmergencyContacts onClose={closeModal} />;
+  }
+
+  if (activeModal === 'medical-info') {
+    return <PersonalMedicalInfo onClose={closeModal} />;
+  }
+
+  if (activeModal === 'patient-transport') {
+    return <PatientTransport onClose={closeModal} />;
   }
 
   return (
@@ -109,6 +121,13 @@ export default function ExploreScreen() {
         {/* Medical Services */}
         <ThemedView style={styles.section}>
           <ThemedText style={[styles.sectionTitle, { color: Colors.light.primary }]}>Layanan Medis</ThemedText>
+          
+          <ServiceCard
+            title="Antar Jemput Pasien"
+            description="Layanan transportasi ke rumah sakit atau klinik"
+            icon="car"
+            onPress={() => handleServicePress('patient-transport')}
+          />
           
           <ServiceCard
             title="Rumah Sakit Terdekat"

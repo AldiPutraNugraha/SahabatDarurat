@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import * as Location from 'expo-location';
-import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
 import { ServiceCard } from '@/components/ServiceCard';
+import { PatientTransport } from '@/components/PatientTransport';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [isEmergencyLoading, setIsEmergencyLoading] = useState(false);
+  const [showPatientTransport, setShowPatientTransport] = useState(false);
 
   // Force light theme colors
   const backgroundColor = Colors.light.background;
@@ -57,11 +59,26 @@ export default function HomeScreen() {
   };
 
   const handleServicePress = (serviceType: string) => {
-    Alert.alert('Layanan', `Anda memilih layanan: ${serviceType}`);
-    // TODO: Navigate to specific service screen
+    switch (serviceType) {
+      case 'Transport':
+        setShowPatientTransport(true);
+        break;
+      case 'Konsultasi':
+        Alert.alert('Info', 'Fitur Konsultasi Medis akan segera tersedia!');
+        break;
+      case 'Rumah Sakit':
+        Alert.alert('Info', 'Fitur Rumah Sakit Terdekat akan segera tersedia!');
+        break;
+      default:
+        Alert.alert('Info', `Fitur ${serviceType} akan segera tersedia!`);
+    }
   };
 
   const { signOut } = useAuth();
+
+  if (showPatientTransport) {
+    return <PatientTransport onClose={() => setShowPatientTransport(false)} />;
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
@@ -75,7 +92,7 @@ export default function HomeScreen() {
                 {location ? 'Lokasi terdeteksi' : 'Mencari lokasi...'}
               </ThemedText>
             </View>
-            <Pressable onPress={signOut} accessibilityRole="button">
+            <Pressable onPress={async () => { await signOut(); router.replace('/(auth)'); }} accessibilityRole="button">
               <Ionicons name="log-out-outline" size={24} color={textSecondaryColor} />
             </Pressable>
           </View>
