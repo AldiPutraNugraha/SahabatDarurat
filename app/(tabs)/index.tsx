@@ -104,12 +104,6 @@ export default function HomeScreen() {
         <ThemedView style={styles.servicesSection}>
           <ThemedText style={[styles.sectionTitle, { color: primaryColor }]}>Layanan Lainnya</ThemedText>
           
-          <ServiceCard
-            title="Ambulans Non-Darurat"
-            description="Untuk keperluan medis yang tidak mendesak"
-            icon="medical-outline"
-            onPress={() => handleServicePress('Non-Darurat')}
-          />
           
           <ServiceCard
             title="Antar Jemput Pasien"
