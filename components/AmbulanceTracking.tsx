@@ -1,8 +1,8 @@
+import { AmbulanceMap } from '@/components/AmbulanceMap';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, ActivityIndicator, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -19,7 +19,7 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
   const [eta, setEta] = useState(12);
   const [status, setStatus] = useState<'on-way' | 'arrived' | 'completed'>('on-way');
   const [ambulanceCoord, setAmbulanceCoord] = useState<{ latitude: number; longitude: number } | null>(null);
-  const mapRef = useRef<MapView | null>(null);
+  const mapRef = useRef<any>(null);
 
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background }, 'background');
   const surfaceColor = useThemeColor({ light: Colors.light.surface, dark: Colors.dark.surface }, 'surface');
@@ -122,21 +122,7 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
 
   const moveCoordinateTowards = (from: { latitude: number; longitude: number }, to: { latitude: number; longitude: number }, meters: number) => stepTowards(from, to, meters);
 
-  const handleCallDriver = () => {
-    Alert.alert(
-      'Hubungi Driver',
-      'Menghubungi driver ambulans...',
-      [{ text: 'OK' }]
-    );
-  };
-
-  const handleChatDriver = () => {
-    Alert.alert(
-      'Chat Driver',
-      'Membuka chat dengan driver...',
-      [{ text: 'OK' }]
-    );
-  };
+  // Removed call/chat handlers as UI tidak lagi menampilkan tombol tersebut
 
   const getStatusColor = () => {
     switch (status) {
@@ -174,35 +160,12 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
       {/* Map Realtime */}
       <ThemedView style={styles.mapContainer}>
         {userLocation && ambulanceCoord ? (
-          <MapView
-            ref={mapRef}
-            provider={PROVIDER_GOOGLE}
-            style={StyleSheet.absoluteFill}
-            initialRegion={{
-              latitude: (userLocation.coords.latitude + ambulanceCoord.latitude) / 2,
-              longitude: (userLocation.coords.longitude + ambulanceCoord.longitude) / 2,
-              latitudeDelta: 0.03,
-              longitudeDelta: 0.03,
-            }}
-          >
-            <Marker
-              coordinate={{ latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }}
-              title="Lokasi Anda"
-              pinColor={successColor}
-            />
-            <Marker
-              coordinate={ambulanceCoord}
-              title="Ambulans"
-              description="Menuju lokasi Anda"
-            >
-              <Ionicons name="medical" size={28} color={primaryColor} />
-            </Marker>
-            <Polyline
-              coordinates={[ambulanceCoord, { latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }]}
-              strokeColor={primaryColor}
-              strokeWidth={3}
-            />
-          </MapView>
+          <AmbulanceMap
+            user={{ latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }}
+            ambulance={ambulanceCoord}
+            primaryColor={primaryColor}
+            successColor={successColor}
+          />
         ) : (
           <View style={styles.mapPlaceholder}>
             <ActivityIndicator color={primaryColor} />
@@ -238,35 +201,8 @@ export function AmbulanceTracking({ onClose }: AmbulanceTrackingProps) {
             </View>
           </View>
         </View>
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: primaryColor }]}
-            onPress={handleCallDriver}
-          >
-            <Ionicons name="call" size={20} color="#FFFFFF" />
-            <ThemedText style={styles.actionButtonText}>Telepon</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: Colors.light.secondary }]}
-            onPress={handleChatDriver}
-          >
-            <Ionicons name="chatbubbles" size={20} color="#FFFFFF" />
-            <ThemedText style={styles.actionButtonText}>Chat</ThemedText>
-          </TouchableOpacity>
-        </View>
       </ThemedView>
 
-      {/* Emergency Contact */}
-      <ThemedView style={[styles.emergencyContact, { backgroundColor: surfaceColor }]}>
-        <ThemedText style={styles.emergencyTitle}>Kontak Darurat</ThemedText>
-        <TouchableOpacity style={styles.emergencyButton}>
-          <Ionicons name="call" size={20} color={primaryColor} />
-          <ThemedText style={styles.emergencyText}>119 - Ambulans</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
     </SafeAreaView>
   );
 }
@@ -377,46 +313,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  emergencyContact: {
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  emergencyTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  emergencyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  emergencyText: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: Colors.light.primary,
-  },
+  // removed action buttons & emergency contact styles
 });
