@@ -10,6 +10,7 @@ import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, View } from 're
 
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
+import { saveEmergencyCall } from '@/utils/serviceHistory';
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -46,9 +47,23 @@ export default function HomeScreen() {
     try {
       // Simulate emergency call process
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simpan riwayat panggilan ambulans
+      if (location) {
+        const locationData = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          address: 'Lokasi Anda saat ini' // Bisa diimprove dengan reverse geocoding
+        };
+        
+        await saveEmergencyCall('Panggilan ambulans darurat', locationData);
+        console.log('Emergency call history saved successfully');
+      }
+      
       // Navigate to tracking screen
       router.push('/tracking');
-    } catch {
+    } catch (error) {
+      console.error('Error in emergency call:', error);
       Alert.alert('Error', 'Gagal memanggil ambulans. Silakan coba lagi.');
     } finally {
       setIsEmergencyLoading(false);
