@@ -6,6 +6,7 @@ import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 
 import { AmbulanceActions } from '@/components/AmbulanceActions';
 import { EmergencyButton } from '@/components/EmergencyButton';
@@ -46,14 +47,8 @@ export default function HomeScreen() {
     try {
       // Simulate emergency call process
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      Alert.alert(
-        'Panggilan Darurat Berhasil!',
-        'Ambulans terdekat sedang menuju lokasi Anda. ETA: 8-12 menit',
-        [{ text: 'OK' }]
-      );
-      
-      // TODO: Navigate to tracking screen
+      // Navigate to tracking screen
+      router.push('/tracking');
     } catch {
       Alert.alert('Error', 'Gagal memanggil ambulans. Silakan coba lagi.');
     } finally {
