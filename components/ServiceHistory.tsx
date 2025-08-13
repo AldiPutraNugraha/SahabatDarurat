@@ -273,9 +273,7 @@ export function ServiceHistory({ onClose }: { onClose?: () => void }) {
       {item.rating ? (
         <View style={styles.ratingContainer}>
           {renderStars(item.rating)}
-          <ThemedText style={[styles.ratingText, { color: textSecondaryColor }]}>
-            ({item.rating}/5)
-          </ThemedText>
+          <ThemedText style={[styles.ratingText, { color: textSecondaryColor }]}>({item.rating}/5)</ThemedText>
         </View>
       ) : item.status === 'completed' && (
         <TouchableOpacity 
